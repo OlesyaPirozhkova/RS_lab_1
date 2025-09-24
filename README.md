@@ -51,7 +51,6 @@ sudo apt update
 ![Скриншот 23-09-2025 203553](https://github.com/user-attachments/assets/b38af39f-3700-4000-9db1-72060f2c810e)
 
 ```
-sudo apt update
 sudo apt install python3 python3-pip python3-venv -y
 ```
 
