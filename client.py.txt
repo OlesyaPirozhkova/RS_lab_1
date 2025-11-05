@@ -1,0 +1,45 @@
+import grpc # pyright: ignore[reportMissingModuleSource]
+from concurrent import futures
+import time
+import newsfeed_pb2
+import newsfeed_pb2_grpc
+
+class NewsFeedServicer(newsfeed_pb2_grpc.NewsFeedServicer):
+    def GetLatestNews(self, request, context):
+        print(f"Получен запрос для категории: {request.category}")
+        
+        news_data = {
+            "technology": [
+                {"title": "Новый ИИ от OpenAI", "content": "Представлена новая модель искусственного интеллекта"},
+                {"title": "Запуск смартфона", "content": "Samsung представил новый флагман"},
+            ],
+            "sports": [
+                {"title": "Футбольный матч", "content": "Результаты чемпионата"},
+            ]
+        }
+        
+        news_list = news_data.get(request.category.lower(), [])
+        print(f"Найдено новостей: {len(news_list)}")
+        
+        for i, news in enumerate(news_list):
+            response = newsfeed_pb2.NewsResponse(
+                title=news["title"],
+                content=news["content"],
+                category=request.category
+            )
+            print(f"Отправляю новость: {news['title']}")
+            yield response
+            time.sleep(2)
+
+def serve():
+    print("Запуск сервера...")
+    server = grpc.server(futures.ThreadPoolExecutor(max_workers=10))
+    newsfeed_pb2_grpc.add_NewsFeedServicer_to_server(NewsFeedServicer(), server)
+    server.add_insecure_port('[::]:50051')
+    server.start()
+    print("Сервер запущен на порту 50051")
+    print("Ожидаю подключений...")
+    server.wait_for_termination()
+
+if name == 'main':
+    serve()
